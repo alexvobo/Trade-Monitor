@@ -1,2 +1,2 @@
 # Position-Feed
-Gives a real-time feed of price action 
+Shows a real-time feed of price action relative to chosen portfolio
