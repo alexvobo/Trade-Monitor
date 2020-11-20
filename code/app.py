@@ -1,6 +1,5 @@
 from time import sleep
 import threading
-import re
 from tabulate import tabulate
 import numpy as np
 from pycoingecko import CoinGeckoAPI
@@ -8,6 +7,7 @@ from pycoingecko import CoinGeckoAPI
 import os
 
 from json_file_ops import save_file, load_file
+
 SAVE_DIR = "stored_data"
 EXCHANGES = ["binance", "uniswap", "kucoin"]
 DEFAULT_JSON = {"coin": "", "coin_sym": "", "coin_id": "", "last_price": 0,
@@ -71,6 +71,10 @@ def calc_pnl(pos_size, cost, curr_price, buy_price):
     return pnl, per_change
 
 
+def calc_total(total_purchased, price):
+    return round(total_purchased*price, 2)
+
+
 def api_thread(fname, json_data):
     vs_currency = "usd"
     symbol = get_symbol(vs_currency)
@@ -95,8 +99,10 @@ def api_thread(fname, json_data):
         for x in range(0, sleep_len, sleep_interval):
             timeleft = sleep_len-x
 
-            s = " Price: {}{} | PNL: {}{} ({}%) | ...Updating in {} ".format(
-                symbol, json_data['last_price'], symbol, json_data['pnl'], json_data['per_change'], timeleft)
+            s = " Price: {} {} | Worth: {} {} | PNL: {} {} ({}%) | ...Updating in {} ".format(
+                symbol, json_data['last_price'], symbol, calc_total(
+                    json_data['total_purchased'], json_data['last_price']),
+                symbol, json_data['pnl'], json_data['per_change'], timeleft)
             print(s, end='\r')
 
             sleep(sleep_interval)
